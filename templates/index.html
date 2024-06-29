@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Grade Prediction</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 50%; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; }
+        .form-group button { padding: 10px 15px; background-color: #5cb85c; color: white; border: none; cursor: pointer; }
+        .form-group button:hover { background-color: #4cae4c; }
+        .result, .metrics, .graph { margin-top: 20px; }
+        .metrics h3 { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Grade Prediction</h2>
+        <form action="/predict" method="post">
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+            </div>
+            <div class="form-group">
+                <label for="absences">Absences:</label>
+                <input type="number" id="absences" name="absences" required>
+            </div>
+            <div class="form-group">
+                <label for="studytime">Study Time:</label>
+                <input type="number" id="studytime" name="studytime" required>
+            </div>
+            <div class="form-group">
+                <label for="failures">Failures:</label>
+                <input type="number" id="failures" name="failures" required>
+            </div>
+            <div class="form-group">
+                <label for="schoolsup_yes">School Support (Yes=1, No=0):</label>
+                <input type="number" id="schoolsup_yes" name="schoolsup_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="famsup_yes">Family Support (Yes=1, No=0):</label>
+                <input type="number" id="famsup_yes" name="famsup_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="paid_yes">Paid Classes (Yes=1, No=0):</label>
+                <input type="number" id="paid_yes" name="paid_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="activities_yes">Activities (Yes=1, No=0):</label>
+                <input type="number" id="activities_yes" name="activities_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="higher_yes">Higher Education (Yes=1, No=0):</label>
+                <input type="number" id="higher_yes" name="higher_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="internet_yes">Internet Access (Yes=1, No=0):</label>
+                <input type="number" id="internet_yes" name="internet_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="romantic_yes">Romantic Relationship (Yes=1, No=0):</label>
+                <input type="number" id="romantic_yes" name="romantic_yes" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="famrel">Family Relationship Quality (1-5):</label>
+                <input type="number" id="famrel" name="famrel" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="freetime">Free Time (1-5):</label>
+                <input type="number" id="freetime" name="freetime" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="goout">Going Out with Friends (1-5):</label>
+                <input type="number" id="goout" name="goout" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="dalc">Workday Alcohol Consumption (1-5):</label>
+                <input type="number" id="dalc" name="dalc" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="walc">Weekend Alcohol Consumption (1-5):</label>
+                <input type="number" id="walc" name="walc" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="health">Current Health Status (1-5):</label>
+                <input type="number" id="health" name="health" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+                <label for="g1">First Period Grade:</label>
+                <input type="number" id="g1" name="g1" required>
+            </div>
+            <div class="form-group">
+                <label for="g2">Second Period Grade:</label>
+                <input type="number" id="g2" name="g2" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Predict</button>
+            </div>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            <h3>Predicted Final Grade (G3): {{ prediction }}</h3>
+        </div>
+        {% endif %}
+
+        {% if mse_train and r2_train and mse_validation and r2_validation and mse_test and r2_test %}
+        <div class="metrics">
+            <h3>Model Evaluation Metrics</h3>
+            <h4>Training Set</h4>
+            <p>Mean Squared Error: {{ mse_train }}</p>
+            <p>R² Score: {{ r2_train }}</p>
+            <p>Accuracy: {{ accuracy_train }}%</p>
+            <br>
+            <h4>Validation Set</h4>
+            <p>Mean Squared Error: {{ mse_validation }}</p>
+            <p>R² Score: {{ r2_validation }}</p>
+            <p>Accuracy: {{ accuracy_validation }}%</p>
+            <br>
+            <h4>Test Set</h4>
+            <p>Mean Squared Error: {{ mse_test }}</p>
+            <p>R² Score: {{ r2_test }}</p>
+            <p>Accuracy: {{ accuracy_test }}%</p>
+        </div>
+        {% endif %}
+
+        {% if graph_train and graph_validation and graph_test %}
+        <div class="graph">
+            <h3>Actual vs Predicted Grades (Training Set)</h3>
+            <img src="data:image/png;base64,{{ graph_train }}" alt="Training Graph">
+        </div>
+        <div class="graph">
+            <h3>Actual vs Predicted Grades (Validation Set)</h3>
+            <img src="data:image/png;base64,{{ graph_validation }}" alt="Validation Graph">
+        </div>
+        <div class="graph">
+            <h3>Actual vs Predicted Grades (Test Set)</h3>
+            <img src="data:image/png;base64,{{ graph_test }}" alt="Test Graph">
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
